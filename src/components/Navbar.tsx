@@ -10,7 +10,8 @@ type NavbarProps = {
 };
 
 export function Navbar({ activeSection, setActiveSection }: NavbarProps) {
-  const { lang } = useLanguage();
+  const { lang, toggleLang } = useLanguage();
+  const isBangla = lang === 'bn';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [openMobileGroup, setOpenMobileGroup] = useState(navGroups[0]?.key ?? 'story');
@@ -34,7 +35,7 @@ export function Navbar({ activeSection, setActiveSection }: NavbarProps) {
       <div className="flex w-full items-center justify-between rounded-full border border-white/10 bg-[#0a0c10]/82 px-4 py-2.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:px-6">
         <button
           type="button"
-          aria-label="Go to home section"
+          aria-label={isBangla ? 'হোম সেকশনে যান' : 'Go to home section'}
           className="appearance-none border-0 bg-transparent p-0 text-left font-serif text-sm font-black tracking-widest text-[#C9A227] md:border-r md:border-white/10 md:pr-5 md:text-lg"
           onClick={(event) => handleNavClick('home', event)}
         >
@@ -102,16 +103,27 @@ export function Navbar({ activeSection, setActiveSection }: NavbarProps) {
           })}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setIsMobileMenuOpen((value) => !value)}
-          aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-expanded={isMobileMenuOpen}
-          aria-controls="mobile-navigation"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-colors hover:text-[#C9A227] lg:hidden"
-        >
-          {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleLang}
+            aria-label={isBangla ? 'Switch website to English' : 'Switch website to Bangla'}
+            className="rounded-full border border-[#C9A227]/35 bg-[#C9A227]/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#FFD700] transition-colors hover:bg-[#C9A227] hover:text-[#04060b]"
+          >
+            {isBangla ? 'English' : 'বাংলা'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen((value) => !value)}
+            aria-label={isMobileMenuOpen ? (isBangla ? 'নেভিগেশন মেনু বন্ধ করুন' : 'Close navigation menu') : (isBangla ? 'নেভিগেশন মেনু খুলুন' : 'Open navigation menu')}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-navigation"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-colors hover:text-[#C9A227] lg:hidden"
+          >
+            {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
       </div>
 
       <AnimatePresence>

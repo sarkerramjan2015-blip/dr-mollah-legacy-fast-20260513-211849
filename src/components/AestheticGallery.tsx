@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useInteractiveMarquee } from '../hooks/useInteractiveMarquee';
 import { FilterTabs } from './ui/Premium';
 
@@ -21,31 +22,44 @@ import img13 from '../asset/optimized/Aesthetic_Gallery/wife.webp';
 
 type GalleryFilter = 'all' | 'leadership' | 'academic' | 'national' | 'media';
 
-const galleryFilters: { id: GalleryFilter; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'leadership', label: 'Leadership' },
-  { id: 'academic', label: 'Academic' },
-  { id: 'national', label: 'National' },
-  { id: 'media', label: 'Media' },
+const galleryFilters: { id: GalleryFilter; label: { en: string; bn: string } }[] = [
+  { id: 'all', label: { en: 'All', bn: 'সব' } },
+  { id: 'leadership', label: { en: 'Leadership', bn: 'নেতৃত্ব' } },
+  { id: 'academic', label: { en: 'Academic', bn: 'শিক্ষা' } },
+  { id: 'national', label: { en: 'National', bn: 'জাতীয়' } },
+  { id: 'media', label: { en: 'Media', bn: 'মিডিয়া' } },
 ];
 
 const galleryImages = [
-  { src: img1, category: 'leadership', label: 'International leadership moment' },
-  { src: img2, category: 'academic', label: 'Academic leadership moment' },
-  { src: img3, category: 'national', label: 'National recognition moment' },
-  { src: img4, category: 'academic', label: 'Prize giving ceremony' },
-  { src: img5, category: 'academic', label: 'Result day celebration' },
-  { src: img6, category: 'leadership', label: 'Leadership gathering' },
-  { src: img7, category: 'leadership', label: 'Institutional leadership moment' },
-  { src: img8, category: 'leadership', label: 'Portrait moment' },
-  { src: img9, category: 'media', label: 'Family and public memory' },
-  { src: img10, category: 'leadership', label: 'South Korea delegation' },
-  { src: img11, category: 'academic', label: 'Sports club event' },
-  { src: img12, category: 'academic', label: 'Turning Point memory' },
-  { src: img13, category: 'media', label: 'Personal archive moment' },
-] satisfies { src: string; category: GalleryFilter; label: string }[];
+  { src: img1, category: 'leadership', label: { en: 'International leadership moment', bn: 'আন্তর্জাতিক নেতৃত্বের মুহূর্ত' } },
+  { src: img2, category: 'academic', label: { en: 'Academic leadership moment', bn: 'শিক্ষা নেতৃত্বের মুহূর্ত' } },
+  { src: img3, category: 'national', label: { en: 'National recognition moment', bn: 'জাতীয় স্বীকৃতির মুহূর্ত' } },
+  { src: img4, category: 'academic', label: { en: 'Prize giving ceremony', bn: 'পুরস্কার বিতরণী অনুষ্ঠান' } },
+  { src: img5, category: 'academic', label: { en: 'Result day celebration', bn: 'ফলাফল দিবসের উদযাপন' } },
+  { src: img6, category: 'leadership', label: { en: 'Leadership gathering', bn: 'নেতৃত্বের সমাবেশ' } },
+  { src: img7, category: 'leadership', label: { en: 'Institutional leadership moment', bn: 'প্রাতিষ্ঠানিক নেতৃত্বের মুহূর্ত' } },
+  { src: img8, category: 'leadership', label: { en: 'Portrait moment', bn: 'প্রতিকৃতির মুহূর্ত' } },
+  { src: img9, category: 'media', label: { en: 'Family and public memory', bn: 'পরিবার ও জনস্মৃতি' } },
+  { src: img10, category: 'leadership', label: { en: 'South Korea delegation', bn: 'দক্ষিণ কোরিয়া প্রতিনিধি দল' } },
+  { src: img11, category: 'academic', label: { en: 'Sports club event', bn: 'স্পোর্টস ক্লাব আয়োজন' } },
+  { src: img12, category: 'academic', label: { en: 'Turning Point memory', bn: 'টার্নিং পয়েন্ট স্মৃতি' } },
+  { src: img13, category: 'media', label: { en: 'Personal archive moment', bn: 'ব্যক্তিগত আর্কাইভের মুহূর্ত' } },
+] satisfies { src: string; category: GalleryFilter; label: { en: string; bn: string } }[];
+
+const galleryCopy = {
+  eyebrow: { en: 'Aesthetic Gallery', bn: 'নান্দনিক গ্যালারি' },
+  title: { en: 'Moments of Leadership', bn: 'নেতৃত্বের মুহূর্ত' },
+  aria: {
+    filter: { en: 'Filter gallery moments', bn: 'গ্যালারি মুহূর্ত ফিল্টার করুন' },
+    carousel: { en: 'Leadership gallery carousel', bn: 'নেতৃত্বের গ্যালারি ক্যারোসেল' },
+    modal: { en: 'Gallery image preview', bn: 'গ্যালারি ছবির প্রিভিউ' },
+    close: { en: 'Close gallery image preview', bn: 'গ্যালারি প্রিভিউ বন্ধ করুন' },
+    selected: { en: 'Selected gallery image', bn: 'নির্বাচিত গ্যালারি ছবি' },
+  },
+};
 
 export function AestheticGallery() {
+  const { lang } = useLanguage();
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<GalleryFilter>('all');
   const visibleGalleryImages = useMemo(() => (
@@ -103,8 +117,8 @@ export function AestheticGallery() {
           {/* Inner Content Box */}
           <div className="relative w-full px-8 py-8 md:px-16 md:py-10 bg-[#04060b]/95 backdrop-blur-3xl rounded-3xl text-center">
              
-             <h2 className="text-[#C9A227] font-black tracking-[0.5em] text-xs md:text-sm uppercase mb-4 drop-shadow-md">
-               Aesthetic Gallery
+               <h2 className="text-[#C9A227] font-black tracking-[0.5em] text-xs md:text-sm uppercase mb-4 drop-shadow-md">
+               {galleryCopy.eyebrow[lang]}
              </h2>
              
              {/* ✨ Typing Animation Effect */}
@@ -114,8 +128,8 @@ export function AestheticGallery() {
                transition={{ duration: 5, repeat: Infinity, times: [0, 0.4, 1] }} // টাইপিং স্টাইল লুপ
                className="inline-block whitespace-nowrap"
              >
-               <h3 className="text-2xl md:text-5xl lg:text-6xl font-serif font-bold bg-gradient-to-r from-white via-[#F5E6C8] to-[#C9A227] bg-clip-text text-transparent pb-2">
-                 Moments of Leadership
+                 <h3 className="text-2xl md:text-5xl lg:text-6xl font-serif font-bold bg-gradient-to-r from-white via-[#F5E6C8] to-[#C9A227] bg-clip-text text-transparent pb-2">
+                 {galleryCopy.title[lang]}
                </h3>
              </motion.div>
 
@@ -125,10 +139,10 @@ export function AestheticGallery() {
 
       <div className="relative z-10">
         <FilterTabs
-          options={galleryFilters}
+          options={galleryFilters.map((filter) => ({ id: filter.id, label: filter.label[lang] }))}
           active={activeFilter}
           onChange={setActiveFilter}
-          ariaLabel="Filter gallery moments"
+          ariaLabel={galleryCopy.aria.filter[lang]}
         />
       </div>
 
@@ -140,7 +154,7 @@ export function AestheticGallery() {
           className={`marquee-fade-mask interactive-marquee overflow-x-auto px-4 py-4 md:px-8 ${
             galleryMarquee.isDragging ? 'is-dragging' : ''
           }`}
-          aria-label="Leadership gallery carousel"
+          aria-label={galleryCopy.aria.carousel[lang]}
         >
           <div className="flex w-max gap-10 pr-10 md:gap-14 md:pr-14">
             {galleryMarqueeItems.map((image, i) => (
@@ -153,13 +167,13 @@ export function AestheticGallery() {
                   if (galleryMarquee.shouldIgnoreClick()) return;
                   setSelectedImg(image.src);
                 }}
-                aria-label={`Open ${image.label}`}
+                aria-label={lang === 'en' ? `Open ${image.label.en}` : `${image.label.bn} খুলুন`}
                 className="w-[320px] h-[380px] md:w-[480px] md:h-[480px] p-3 md:p-4 rounded-[2rem] bg-[#111] border border-[#C9A227]/30 cursor-pointer shadow-[0_20px_50px_rgba(0,0,0,0.6)] hover:shadow-[0_20px_50px_rgba(201,162,39,0.3)] transition-all duration-500 relative group flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A227] focus-visible:ring-offset-4 focus-visible:ring-offset-[#04060b]"
               >
                 <div className="w-full h-full rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden border border-white/10 relative bg-black">
                   <img
                     src={image.src}
-                    alt={image.label}
+                    alt={image.label[lang]}
                     draggable={false}
                     loading="lazy"
                     decoding="async"
@@ -185,12 +199,12 @@ export function AestheticGallery() {
             onClick={() => setSelectedImg(null)}
             role="dialog"
             aria-modal="true"
-            aria-label="Gallery image preview"
+            aria-label={galleryCopy.aria.modal[lang]}
           >
             {/* ❌ Cross (Close) Button */}
             <button 
               type="button"
-              aria-label="Close gallery image preview"
+              aria-label={galleryCopy.aria.close[lang]}
               className="absolute top-6 right-6 md:top-10 md:right-10 text-white/70 bg-white/5 p-4 rounded-full border border-white/10 hover:bg-[#C9A227] hover:text-black hover:border-transparent transition-all z-50 shadow-xl" 
               onClick={(e) => {
                 e.stopPropagation();
@@ -207,7 +221,7 @@ export function AestheticGallery() {
               exit={{ scale: 0.8, opacity: 0 }} // বন্ধ করার সময় ছোট হয়ে ভ্যানিশ হবে
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               src={selectedImg} 
-              alt="Selected gallery image"
+              alt={galleryCopy.aria.selected[lang]}
               className="max-w-full max-h-[90vh] rounded-2xl md:rounded-[2rem] shadow-[0_0_80px_rgba(201,162,39,0.4)] border border-white/10 object-contain" 
               onClick={(event) => event.stopPropagation()}
             />

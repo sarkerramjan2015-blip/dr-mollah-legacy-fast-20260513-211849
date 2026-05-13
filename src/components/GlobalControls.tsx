@@ -16,6 +16,7 @@ export function GlobalControls() {
   const [showTop, setShowTop] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const { lang, toggleLang } = useLanguage();
+  const isBangla = lang === 'bn';
 
   useEffect(() => {
     const toggle = () => setShowTop(window.scrollY > 500);
@@ -26,29 +27,29 @@ export function GlobalControls() {
 
   const controls = [
     {
-      label: 'Back to top',
+      label: isBangla ? 'উপরে যান' : 'Back to top',
       Icon: ArrowUp,
       onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
       disabled: !showTop,
     },
     {
-      label: 'Contact office',
+      label: isBangla ? 'অফিসে যোগাযোগ' : 'Contact office',
       Icon: Mail,
       onClick: () => goToSection('contact'),
       disabled: false,
     },
     {
-      label: 'Watch legacy',
+      label: isBangla ? 'লেগাসি দেখুন' : 'Watch legacy',
       Icon: PlayCircle,
       onClick: () => goToSection('legacy'),
       disabled: false,
     },
     {
-      label: `Switch to ${lang === 'en' ? 'Bengali' : 'English'}`,
+      label: isBangla ? 'Switch to English' : 'বাংলা করুন',
       Icon: Languages,
       onClick: toggleLang,
       disabled: false,
-      badge: lang === 'en' ? 'BN' : 'EN',
+      badge: isBangla ? 'EN' : 'BN',
     },
   ];
 
@@ -70,7 +71,7 @@ export function GlobalControls() {
             }
       }
       className="fixed bottom-5 right-4 z-40 rounded-2xl border border-white/10 bg-[#080b12]/86 p-1.5 shadow-[0_20px_55px_rgba(0,0,0,0.55)] backdrop-blur-2xl md:bottom-6 md:right-6"
-      aria-label="Quick actions"
+      aria-label={isBangla ? 'দ্রুত কাজ' : 'Quick actions'}
     >
       <div className="flex flex-col gap-1.5">
         {controls.map(({ label, Icon, onClick, disabled, badge }) => (

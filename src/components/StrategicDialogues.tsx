@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, X } from 'lucide-react';
+import { useLanguage, type Language } from '../contexts/LanguageContext';
 import { useInteractiveMarquee } from '../hooks/useInteractiveMarquee';
 import { FilterTabs } from './ui/Premium';
 
@@ -97,13 +98,81 @@ type DialogueItem = (typeof dialoguesData)[number];
 
 type EventFilter = 'all' | 'leadership' | 'academic' | 'national' | 'media';
 
-const eventFilters: { id: EventFilter; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'leadership', label: 'Leadership' },
-  { id: 'academic', label: 'Academic' },
-  { id: 'national', label: 'National' },
-  { id: 'media', label: 'Media' },
+const eventFilters: { id: EventFilter; label: Record<Language, string> }[] = [
+  { id: 'all', label: { en: 'All', bn: 'সব' } },
+  { id: 'leadership', label: { en: 'Leadership', bn: 'নেতৃত্ব' } },
+  { id: 'academic', label: { en: 'Academic', bn: 'শিক্ষা' } },
+  { id: 'national', label: { en: 'National', bn: 'জাতীয়' } },
+  { id: 'media', label: { en: 'Media', bn: 'মিডিয়া' } },
 ];
+
+const dialogueEnglishCopy: Record<number, { title: string; caption: string; details: string }> = {
+  1: {
+    title: 'Farewell Reception for SSC Examinees 2026',
+    caption: 'A farewell reception and prayer gathering was held for SSC examinees.',
+    details: 'The farewell program reminded students that an ending is also the beginning of a new chapter. Students were encouraged to stay focused, confident, and sincere in their SSC preparation. The institution wished every examinee a successful journey ahead.',
+  },
+  2: {
+    title: 'Top Scholarship Success in Demra for Class Eight',
+    caption: 'A meeting honored scholarship results, teacher dedication, and academic quality.',
+    details: 'Shamsul Hoque Khan School and College achieved outstanding success in the Class Eight scholarship examination in Demra. Teachers were appreciated for their discipline, care, and contribution to student achievement, while the institution renewed its commitment to higher academic standards.',
+  },
+  3: {
+    title: 'A New History of Glorious Achievement',
+    caption: 'The institution earned 253 of 270 declared junior scholarships in Demra.',
+    details: 'The junior scholarship results created a new milestone for the school community. The achievement reflected the combined dedication of students, teachers, and guardians, and strengthened the institution\'s reputation for disciplined academic excellence.',
+  },
+  4: {
+    title: 'Best Students 2025: Dreams on the Red Carpet',
+    caption: 'The principal announced and celebrated the year\'s top students.',
+    details: 'The Best Students 2025 ceremony celebrated talent, discipline, and aspiration. Students received recognition in front of teachers, guardians, and peers, turning the campus into a joyful moment of encouragement and pride.',
+  },
+  5: {
+    title: 'Morning Shift Academic Assembly',
+    caption: 'A focused gathering for academic discipline and student motivation.',
+    details: 'The morning shift assembly centered on classroom discipline, regular study, and moral development. Students were encouraged to build daily habits that support long-term success.',
+  },
+  6: {
+    title: 'Language and Culture Program 2026',
+    caption: 'Students marked language, culture, and national identity through a campus event.',
+    details: 'The program highlighted respect for language, culture, and national heritage. Teachers and students joined together to celebrate values that shape thoughtful and responsible learners.',
+  },
+  7: {
+    title: 'Guardian Meeting and Academic Guidance',
+    caption: 'Guardians and teachers discussed student progress and shared responsibility.',
+    details: 'The guardian meeting emphasized that student growth depends on cooperation between home and institution. Academic progress, discipline, and emotional support were discussed with practical guidance for families.',
+  },
+  8: {
+    title: 'Guardian Meeting: Partnership for Success',
+    caption: 'A second guardian session continued the conversation around student development.',
+    details: 'This session deepened the partnership between guardians and teachers. The discussion focused on student confidence, regular attendance, study habits, and a healthy learning environment.',
+  },
+  9: {
+    title: 'Reading and Inspiration Program',
+    caption: 'Students were encouraged to build a habit of reading beyond textbooks.',
+    details: 'The event promoted supplementary reading as a path to imagination, critical thinking, and intellectual growth. Students received encouragement to develop a lifelong connection with books.',
+  },
+  10: {
+    title: 'Captain Meeting 2026',
+    caption: 'An event to ignite student leadership and responsibility.',
+    details: 'Captain Meeting 2026 focused on leadership, discipline, honesty, empathy, and responsibility. Student captains were encouraged to become role models for their classmates and future leaders for society.',
+  },
+};
+
+const dialogueCopy = {
+  eyebrow: { en: 'Campus Events & Dialogues', bn: 'ক্যাম্পাস ইভেন্ট ও সংলাপ' },
+  titleBefore: { en: 'Campus Events &', bn: 'ক্যাম্পাস ইভেন্ট ও' },
+  titleAccent: { en: 'Dialogues', bn: 'সংলাপ' },
+  read: { en: 'Read Details', bn: 'বিস্তারিত পড়ুন' },
+  filter: { en: 'Filter campus events', bn: 'ক্যাম্পাস ইভেন্ট ফিল্টার করুন' },
+  carousel: { en: 'Campus events carousel moving', bn: 'ক্যাম্পাস ইভেন্ট ক্যারোসেল চলছে' },
+  modal: { en: 'Campus event details', bn: 'ক্যাম্পাস ইভেন্টের বিস্তারিত' },
+  close: { en: 'Close campus event details', bn: 'ক্যাম্পাস ইভেন্টের বিস্তারিত বন্ধ করুন' },
+};
+
+function getDialogueText(item: DialogueItem, lang: Language, field: 'title' | 'caption' | 'details') {
+  return lang === 'en' ? dialogueEnglishCopy[item.id][field] : item[field];
+}
 
 const eventFilterMap: Record<number, Exclude<EventFilter, 'all'>> = {
   1: 'academic',
@@ -122,10 +191,11 @@ type DialogueRowProps = {
   autoScroll: boolean;
   direction: "left" | "right";
   items: DialogueItem[];
+  lang: Language;
   onSelect: (item: DialogueItem) => void;
 };
 
-function DialogueRow({ autoScroll, direction, items, onSelect }: DialogueRowProps) {
+function DialogueRow({ autoScroll, direction, items, lang, onSelect }: DialogueRowProps) {
   const loopItems = items.length
     ? Array.from({ length: Math.max(3, Math.ceil(9 / items.length)) }, () => items).flat()
     : [];
@@ -145,7 +215,7 @@ function DialogueRow({ autoScroll, direction, items, onSelect }: DialogueRowProp
       className={`interactive-marquee overflow-x-auto px-5 md:px-8 ${
         eventMarquee.isDragging ? 'is-dragging' : ''
       }`}
-      aria-label={`Campus events carousel moving ${direction}`}
+      aria-label={`${dialogueCopy.carousel[lang]} ${direction}`}
     >
       <div className="flex w-max gap-6 pb-6 pr-6">
         {loopItems.map((item, idx) => (
@@ -156,7 +226,7 @@ function DialogueRow({ autoScroll, direction, items, onSelect }: DialogueRowProp
             <div className="h-48 overflow-hidden relative shrink-0 border-b border-white/5">
               <img
                 src={item.img}
-                alt={item.title}
+                alt={getDialogueText(item, lang, 'title')}
                 draggable={false}
                 loading="lazy"
                 decoding="async"
@@ -167,8 +237,8 @@ function DialogueRow({ autoScroll, direction, items, onSelect }: DialogueRowProp
             </div>
             <div className="p-6 flex flex-col flex-1 justify-between bg-[#0a0c10]/80">
               <div>
-                <h4 className="font-bengali text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-[#C9A227] transition-colors leading-snug">{item.title}</h4>
-                <p className="font-bengali text-sm text-slate-400 mb-5 line-clamp-2">{item.caption}</p>
+                <h4 className="font-bengali text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-[#C9A227] transition-colors leading-snug">{getDialogueText(item, lang, 'title')}</h4>
+                <p className="font-bengali text-sm text-slate-400 mb-5 line-clamp-2">{getDialogueText(item, lang, 'caption')}</p>
               </div>
               <button
                 type="button"
@@ -176,10 +246,10 @@ function DialogueRow({ autoScroll, direction, items, onSelect }: DialogueRowProp
                   if (eventMarquee.shouldIgnoreClick()) return;
                   onSelect(item);
                 }}
-                aria-label={`Read details for ${item.title}`}
+                aria-label={lang === 'en' ? `Read details for ${getDialogueText(item, lang, 'title')}` : `${getDialogueText(item, lang, 'title')} বিস্তারিত পড়ুন`}
                 className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-[#04060b] bg-gradient-to-r from-[#C9A227] to-[#FFD700] hover:from-[#FFD700] hover:to-[#C9A227] px-5 py-2.5 rounded-lg transition-all self-start shadow-lg"
               >
-                বিস্তারিত পড়ুন <ArrowRight className="w-4 h-4" />
+                {dialogueCopy.read[lang]} <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -190,6 +260,7 @@ function DialogueRow({ autoScroll, direction, items, onSelect }: DialogueRowProp
 }
 
 export function StrategicDialogues() {
+  const { lang } = useLanguage();
   const [selectedDialogue, setSelectedDialogue] = useState<DialogueItem | null>(null);
   const [activeFilter, setActiveFilter] = useState<EventFilter>('all');
   const filteredDialogues = useMemo(() => (
@@ -225,15 +296,15 @@ export function StrategicDialogues() {
     <section className="py-20 lg:py-32 bg-[#04060b] text-white overflow-hidden relative border-t border-white/5">
       
       <div className="container mx-auto px-5 lg:px-8 mb-16 text-center">
-        <h2 className="text-sm font-bold tracking-widest text-[#C9A227] uppercase mb-3">Campus Events & Dialogues</h2>
-        <h3 className="text-4xl lg:text-5xl font-bengali font-black text-white">ক্যাম্পাস ইভেন্ট ও <span className="bg-gradient-to-r from-[#C9A227] to-[#FFD700] bg-clip-text text-transparent italic">সংলাপ</span></h3>
+        <h2 className="text-sm font-bold tracking-widest text-[#C9A227] uppercase mb-3">{dialogueCopy.eyebrow[lang]}</h2>
+        <h3 className="text-4xl lg:text-5xl font-bengali font-black text-white">{dialogueCopy.titleBefore[lang]} <span className="bg-gradient-to-r from-[#C9A227] to-[#FFD700] bg-clip-text text-transparent italic">{dialogueCopy.titleAccent[lang]}</span></h3>
       </div>
 
       <FilterTabs
-        options={eventFilters}
+        options={eventFilters.map((filter) => ({ id: filter.id, label: filter.label[lang] }))}
         active={activeFilter}
         onChange={setActiveFilter}
-        ariaLabel="Filter campus events"
+        ariaLabel={dialogueCopy.filter[lang]}
       />
       
       <div className="relative">
@@ -241,8 +312,8 @@ export function StrategicDialogues() {
         <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-[#04060b] to-transparent z-10 pointer-events-none" />
         
         {/* দুই সারিতে স্ক্রলিং ইভেন্ট */}
-        <DialogueRow autoScroll items={row1} direction="left" onSelect={setSelectedDialogue} />
-        <DialogueRow autoScroll items={row2} direction="right" onSelect={setSelectedDialogue} />
+        <DialogueRow autoScroll items={row1} direction="left" lang={lang} onSelect={setSelectedDialogue} />
+        <DialogueRow autoScroll items={row2} direction="right" lang={lang} onSelect={setSelectedDialogue} />
       </div>
 
       {/* 📰 ইভেন্ট ডিটেইলস পপ-আপ (Modal) 📰 */}
@@ -254,7 +325,7 @@ export function StrategicDialogues() {
             onClick={() => setSelectedDialogue(null)}
             role="dialog"
             aria-modal="true"
-            aria-label="Campus event details"
+            aria-label={dialogueCopy.modal[lang]}
           >
             <motion.div 
               initial={{ scale: 0.95, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.95, y: 20, opacity: 0 }}
@@ -266,7 +337,7 @@ export function StrategicDialogues() {
               {/* ক্লোজ বাটন */}
               <button 
                 type="button"
-                aria-label="Close campus event details"
+                aria-label={dialogueCopy.close[lang]}
                 onClick={() => setSelectedDialogue(null)} 
                 className="absolute top-4 right-4 md:top-6 md:right-6 z-50 text-slate-300 hover:text-white bg-black/40 hover:bg-red-500/80 p-2 rounded-full transition-all backdrop-blur-md"
               >
@@ -275,7 +346,7 @@ export function StrategicDialogues() {
 
               {/* বাম দিকের ইমেজ (ডেস্কটপে অর্ধেক, মোবাইলে উপরে) */}
               <div className="h-56 md:h-auto md:w-[45%] relative shrink-0">
-                <img src={selectedDialogue.img} alt={selectedDialogue.title} className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" />
+                <img src={selectedDialogue.img} alt={getDialogueText(selectedDialogue, lang, 'title')} className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0a0c10] to-transparent md:bg-gradient-to-r md:from-transparent md:to-[#0a0c10] opacity-90" />
               </div>
               
@@ -284,12 +355,12 @@ export function StrategicDialogues() {
                 <div className="w-12 h-1.5 bg-gradient-to-r from-[#C9A227] to-[#FFD700] mb-6 rounded-full shrink-0" />
                 
                 <h3 className="font-bengali text-2xl md:text-4xl font-black text-white mb-6 leading-tight shrink-0">
-                  {selectedDialogue.title}
+                  {getDialogueText(selectedDialogue, lang, 'title')}
                 </h3>
                 
                 {/* ডিটেইলস টেক্সট (Line break সহ রেন্ডার করা হয়েছে) */}
                 <div className="font-bengali text-slate-300 text-base md:text-lg leading-relaxed whitespace-pre-wrap text-justify">
-                  {selectedDialogue.details}
+                  {getDialogueText(selectedDialogue, lang, 'details')}
                 </div>
               </div>
 

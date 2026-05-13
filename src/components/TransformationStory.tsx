@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { motion, useInView, animate } from 'motion/react';
 import { Tent, Globe } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 import { FadeIn } from './FadeIn';
 
 import pastImage from '../asset/optimized/tinshed_school.webp';
@@ -93,10 +94,58 @@ const OrbitBorder = ({ children, radius = '2rem', duration = 10, blur = 20, opac
   </div>
 );
 
+const storyCopy = {
+  badge: {
+    en: 'A Visionary Leadership that redefined Education in Bangladesh',
+    bn: 'বাংলাদেশের শিক্ষাকে নতুনভাবে সংজ্ঞায়িত করা দূরদর্শী নেতৃত্ব',
+  },
+  titleBefore: { en: 'The SHKSC', bn: 'এসএইচকেএসসি' },
+  titleAccent: { en: 'Transformation', bn: 'রূপান্তরের' },
+  titleAfter: { en: 'Story', bn: 'গল্প' },
+  beginning: { en: '1889 - The Beginning', bn: '১৮৮৯ - সূচনা' },
+  present: { en: '2026 - The Present', bn: '২০২৬ - বর্তমান' },
+  students: { en: 'Students', bn: 'শিক্ষার্থী' },
+  tinshed: { en: 'Tinshed Campus', bn: 'টিনশেড ক্যাম্পাস' },
+  modern: { en: 'Modern Mega Campus', bn: 'আধুনিক মেগা ক্যাম্পাস' },
+  altPast: { en: '1889 campus', bn: '১৮৮৯ সালের ক্যাম্পাস' },
+  altPresent: { en: '2026 campus', bn: '২০২৬ সালের ক্যাম্পাস' },
+};
+
+const storyTimelineEn = [
+  {
+    year: '1889',
+    label: 'The Humble Beginning',
+    desc: 'The dream began in a tin-shed campus with only 157 students, planting the seed of an enlightened future.',
+  },
+  {
+    year: '1993-2003',
+    label: 'The Turning Point',
+    desc: 'Government recognition, MPO inclusion, and the college branch launch created a historic institutional turning point.',
+  },
+  {
+    year: '2012-2015',
+    label: 'The Pinnacle of Success',
+    desc: 'Major SSC achievements in the Dhaka Board established SHKSC as one of the country\'s finest institutions.',
+  },
+  {
+    year: 'Present',
+    label: 'The Present Glory',
+    desc: 'A proud family of 20,000+ learners now studies in a modern campus built around discipline and aspiration.',
+  },
+];
+
+const storyTimelineBnLabels = [
+  'বিনম্র সূচনা',
+  'রূপান্তরের মোড়',
+  'সাফল্যের শিখর',
+  'বর্তমান গৌরব',
+];
+
 // ─────────────────────────────────────────────
 // 🌟 4. Main Section
 // ─────────────────────────────────────────────
 export function TransformationStory() {
+  const { lang } = useLanguage();
   const sectionRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(counterRef, { once: true, margin: '-100px' });
@@ -107,6 +156,13 @@ export function TransformationStory() {
     { year: '২০১২–২০১৫', label: 'The Pinnacle of Success', desc: '২০১২ ও ২০১৫ সালে ঢাকা বোর্ড এসএসসিতে যথাক্রমে ২য় ও ১ম স্থান — দেশসেরা বিদ্যাপীঠের স্বীকৃতি।' },
     { year: 'বর্তমান', label: 'The Present Glory', desc: '২০,০০০+ শিক্ষার্থীর এক গর্বিত পরিবার এবং আধুনিক স্থাপত্যের এক অনন্য জ্ঞানের তীর্থ।' },
   ];
+
+  const displayTimeline = lang === 'en'
+    ? storyTimelineEn
+    : timelineData.map((item, index) => ({
+      ...item,
+      label: storyTimelineBnLabels[index] ?? item.label,
+    }));
 
   return (
     <section ref={sectionRef} className="relative py-28 lg:py-36 px-5 lg:px-8 bg-[#04060b] border-t border-white/[0.02] overflow-hidden">
@@ -128,7 +184,7 @@ export function TransformationStory() {
                />
                <div className="relative px-6 py-2 bg-[#04060b] rounded-xl">
                  <span className="text-xs md:text-sm font-black tracking-[0.3em] text-white uppercase text-center block">
-                   A Visionary Leadership that redefined Education in Bangladesh
+                   {storyCopy.badge[lang]}
                  </span>
                </div>
             </div>
@@ -144,11 +200,11 @@ export function TransformationStory() {
                 transition={{ duration: 2, ease: "easeInOut" }}
                 className="text-4xl md:text-5xl lg:text-7xl font-serif font-black text-white leading-[1.2]"
               >
-                The SHKSC <br />
+                {storyCopy.titleBefore[lang]} <br />
                 <span className="relative inline-block mt-2">
-                  <span className="relative z-10 text-red-500 italic px-2">Transformation</span>
+                  <span className="relative z-10 text-red-500 italic px-2">{storyCopy.titleAccent[lang]}</span>
                   <div className="absolute bottom-2 left-0 w-full h-5 md:h-6 bg-red-500/20 -rotate-2" />
-                </span> Story
+                </span> {storyCopy.titleAfter[lang]}
               </motion.h3>
             </div>
 
@@ -159,7 +215,7 @@ export function TransformationStory() {
 
           {/* ── LEFT: Timeline ── */}
           <div className="relative pl-8 border-l-[2px] border-white/5">
-            {timelineData.map((item, i) => (
+            {displayTimeline.map((item, i) => (
               <FadeIn key={i} delay={i * 0.15} className="mb-12 relative group">
                 {/* Clean Timeline Dot */}
                 <div className="absolute -left-[41px] top-1.5 w-4 h-4 rounded-full bg-[#04060b] border-2 border-red-500 group-hover:bg-red-500 transition-all duration-300 shadow-[0_0_10px_rgba(255,0,0,0.3)]" />
@@ -185,16 +241,16 @@ export function TransformationStory() {
                 {/* ─── 1889 Block ─── */}
                 <div className="flex flex-col xl:flex-row items-start xl:items-center gap-8 group">
                   <div className="flex-1 space-y-2">
-                    <span className="text-xs font-bold tracking-[0.2em] uppercase text-slate-500">1889 — The Beginning</span>
+                    <span className="text-xs font-bold tracking-[0.2em] uppercase text-slate-500">{storyCopy.beginning[lang]}</span>
                     <div className="flex items-baseline gap-3">
                       <span className="text-5xl font-bold text-white/80 tracking-normal">157</span>
-                      <span className="text-sm text-slate-500 font-medium">Students</span>
+                      <span className="text-sm text-slate-500 font-medium">{storyCopy.students[lang]}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-slate-500 pt-1">
-                      <Tent className="w-4 h-4" /> Tinshed Campus
+                      <Tent className="w-4 h-4" /> {storyCopy.tinshed[lang]}
                     </div>
                   </div>
-                  <StableImage src={pastImage} alt="1889 Campus" grayscale containerClassName="w-full xl:w-40 h-28 border border-white/5" />
+                  <StableImage src={pastImage} alt={storyCopy.altPast[lang]} grayscale containerClassName="w-full xl:w-40 h-28 border border-white/5" />
                 </div>
 
                 {/* Elegant Divider */}
@@ -203,18 +259,18 @@ export function TransformationStory() {
                 {/* ─── 2026 Block ─── */}
                 <div className="flex flex-col xl:flex-row items-start xl:items-center gap-8 group">
                   <div className="flex-1 space-y-2">
-                    <span className="text-xs font-bold tracking-[0.2em] uppercase text-red-500">2026 — The Present</span>
+                    <span className="text-xs font-bold tracking-[0.2em] uppercase text-red-500">{storyCopy.present[lang]}</span>
                     <div className="flex items-baseline gap-3">
                       <span className="text-6xl lg:text-7xl font-black tracking-normal bg-gradient-to-r from-red-500 to-[#FFD700] bg-clip-text text-transparent">
                         <SmoothCounter from={157} to={20000} duration={5} trigger={isInView} />+
                       </span>
-                      <span className="text-base text-slate-400 font-medium">Students</span>
+                      <span className="text-base text-slate-400 font-medium">{storyCopy.students[lang]}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-red-500 pt-1">
-                      <Globe className="w-4 h-4" /> Modern Mega Campus
+                      <Globe className="w-4 h-4" /> {storyCopy.modern[lang]}
                     </div>
                   </div>
-                  <StableImage src={presentImage} alt="2026 Campus" containerClassName="w-full xl:w-48 h-32 border border-red-500/20" />
+                  <StableImage src={presentImage} alt={storyCopy.altPresent[lang]} containerClassName="w-full xl:w-48 h-32 border border-red-500/20" />
                 </div>
 
               </div>

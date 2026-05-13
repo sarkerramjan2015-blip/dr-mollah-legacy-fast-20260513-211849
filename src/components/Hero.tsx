@@ -21,15 +21,37 @@ const HERO_ROLES = {
 };
 
 const HERO_STATS = [
-  { value: '20,000+', label: 'Students Inspired', Icon: Users },
-  { value: '5+', label: 'Institutions Built', Icon: Building2 },
-  { value: '35+', label: 'Years of Service', Icon: Award },
+  { value: '20,000+', label: { en: 'Students Inspired', bn: 'শিক্ষার্থী অনুপ্রাণিত' }, Icon: Users },
+  { value: '5+', label: { en: 'Institutions Built', bn: 'প্রতিষ্ঠান নির্মিত' }, Icon: Building2 },
+  { value: '35+', label: { en: 'Years of Service', bn: 'বছরের শিক্ষাসেবা' }, Icon: Award },
 ];
+
+const heroCopy = {
+  badge: {
+    en: 'National Educational Architect',
+    bn: 'জাতীয় শিক্ষা স্থপতি',
+  },
+  actions: {
+    legacy: { en: 'Watch Legacy', bn: 'লেগাসি দেখুন' },
+    institutions: { en: 'View Institutions', bn: 'প্রতিষ্ঠান দেখুন' },
+    publications: { en: 'Read Publications', bn: 'প্রকাশনা পড়ুন' },
+    contact: { en: 'Contact Office', bn: 'অফিসে যোগাযোগ' },
+  },
+  dedication: {
+    en: 'Dedication',
+    bn: 'নিবেদন',
+  },
+  years: {
+    en: '35+ Years',
+    bn: '৩৫+ বছর',
+  },
+};
 
 export function Hero({ setSelectedImg }: { setSelectedImg: (img: string) => void }) {
   const { lang } = useLanguage();
   const [roleIndex, setRoleIndex] = useState(0);
   const roles = HERO_ROLES[lang];
+  const copy = heroCopy;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -55,7 +77,7 @@ export function Hero({ setSelectedImg }: { setSelectedImg: (img: string) => void
           <div className="flex justify-center lg:justify-start mb-8">
             <div className="inline-flex items-center gap-3 px-5 sm:px-6 py-2.5 rounded-full bg-white/5 backdrop-blur-xl border border-[#C9A227]/40 shadow-[0_0_20px_rgba(201,162,39,0.2)]">
                <ShieldCheck className="text-[#C9A227]" size={18} />
-               <span className="text-[#C9A227] text-[10px] font-black tracking-[0.24em] sm:tracking-[0.34em] uppercase italic">National Educational Architect</span>
+               <span className="text-[#C9A227] text-[10px] font-black tracking-[0.24em] sm:tracking-[0.34em] uppercase italic">{copy.badge[lang]}</span>
             </div>
           </div>
           
@@ -81,16 +103,16 @@ export function Hero({ setSelectedImg }: { setSelectedImg: (img: string) => void
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <PremiumButton href="#legacy" icon={PlayCircle}>
-              Watch Legacy
+              {copy.actions.legacy[lang]}
             </PremiumButton>
             <PremiumButton href="#institutions" icon={Building2} variant="outline">
-              View Institutions
+              {copy.actions.institutions[lang]}
             </PremiumButton>
             <PremiumButton href="#publications" icon={BookOpen} variant="ghost">
-              Read Publications
+              {copy.actions.publications[lang]}
             </PremiumButton>
             <PremiumButton href="#contact" icon={Mail} variant="ghost">
-              Contact Office
+              {copy.actions.contact[lang]}
             </PremiumButton>
           </div>
 
@@ -99,10 +121,10 @@ export function Hero({ setSelectedImg }: { setSelectedImg: (img: string) => void
               const Icon = stat.Icon;
 
               return (
-                <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-4 text-left backdrop-blur-xl">
+                <div key={stat.label.en} className="rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-4 text-left backdrop-blur-xl">
                   <Icon className="mb-3 h-5 w-5 text-[#C9A227]" />
                   <p className="text-2xl font-black text-white">{stat.value}</p>
-                  <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">{stat.label}</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">{stat.label[lang]}</p>
                 </div>
               );
             })}
@@ -168,8 +190,8 @@ export function Hero({ setSelectedImg }: { setSelectedImg: (img: string) => void
                     <Trophy size={18} />
                 </div>
                 <div>
-                  <p className="text-[9px] font-black uppercase text-[#FFD700] tracking-widest drop-shadow-md">Dedication</p>
-                  <p className="text-xl font-serif font-bold text-white leading-none mt-1">35+ Years</p>
+                  <p className="text-[9px] font-black uppercase text-[#FFD700] tracking-widest drop-shadow-md">{copy.dedication[lang]}</p>
+                  <p className="text-xl font-serif font-bold text-white leading-none mt-1">{copy.years[lang]}</p>
                 </div>
               </div>
             </motion.div>

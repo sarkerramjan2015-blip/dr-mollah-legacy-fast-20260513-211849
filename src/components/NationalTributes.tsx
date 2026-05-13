@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { Calendar } from 'lucide-react';
+import { useLanguage, type Language } from '../contexts/LanguageContext';
 import { FadeIn } from './FadeIn';
 
 // 👇 তোমার লোকাল ফোল্ডার থেকে ছবিগুলো ইমপোর্ট করা হলো
@@ -47,7 +48,41 @@ const TRIBUTES = [
   }
 ];
 
+const tributeEnglishCopy: Record<number, { date: string; title: string; msg: string }> = {
+  1: {
+    date: '21 February',
+    title: 'International Mother Language Day',
+    msg: 'With humble respect to all language martyrs who gave us the right to speak in our mother tongue.',
+  },
+  2: {
+    date: '26 March',
+    title: 'Independence Day',
+    msg: 'Deep respect to the martyrs whose sacrifice made our independence possible.',
+  },
+  3: {
+    date: '14 April',
+    title: 'Happy Bengali New Year 1433',
+    msg: 'May the new morning of the year remove all sorrow and fill life with joy.',
+  },
+  4: {
+    date: 'Holy Eid-ul-Fitr',
+    title: 'Eid Mubarak',
+    msg: 'The light of education guides people toward knowledge and helps society grow with dignity.',
+  },
+};
+
+const tributeCopy = {
+  eyebrow: { en: 'National Tributes & Greetings', bn: 'জাতীয় দিবস ও শুভেচ্ছা' },
+  titleBefore: { en: 'National Days &', bn: 'জাতীয় দিবস ও' },
+  titleAccent: { en: 'Greetings', bn: 'শুভেচ্ছা' },
+};
+
+function getTributeText(item: (typeof TRIBUTES)[number], lang: Language, field: 'date' | 'title' | 'msg') {
+  return lang === 'en' ? tributeEnglishCopy[item.id][field] : item[field];
+}
+
 export function NationalTributes() {
+  const { lang } = useLanguage();
   return (
     <section className="relative py-24 lg:py-36 px-5 lg:px-8 bg-[#04060b] border-t border-white/[0.02] overflow-hidden">
       
@@ -66,7 +101,7 @@ export function NationalTributes() {
             <div className="relative px-6 py-2 bg-[#0a0c10]/90 backdrop-blur-2xl border border-white/10 rounded-full shadow-xl flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-pulse" />
               <span className="text-[10px] md:text-xs font-bold tracking-[0.25em] uppercase text-[#C9A227]">
-                National Tributes & Greetings
+                {tributeCopy.eyebrow[lang]}
               </span>
             </div>
           </div>
@@ -78,7 +113,7 @@ export function NationalTributes() {
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="text-4xl md:text-5xl lg:text-6xl font-serif font-black text-white leading-tight"
           >
-            জাতীয় দিবস ও <span className="bg-gradient-to-r from-[#C9A227] via-[#FFD700] to-[#F5E6C8] bg-clip-text text-transparent italic">শুভেচ্ছা</span>
+            {tributeCopy.titleBefore[lang]} <span className="bg-gradient-to-r from-[#C9A227] via-[#FFD700] to-[#F5E6C8] bg-clip-text text-transparent italic">{tributeCopy.titleAccent[lang]}</span>
           </motion.h3>
         </div>
 
@@ -93,7 +128,7 @@ export function NationalTributes() {
                 <div className="aspect-[4/5] w-full relative overflow-hidden">
                   <img 
                     src={item.img} 
-                    alt={item.title} 
+                    alt={getTributeText(item, lang, 'title')}
                     className="w-full h-full object-cover transform-gpu transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105" 
                   />
                   
@@ -105,7 +140,7 @@ export function NationalTributes() {
                     <div className="px-3 py-1.5 bg-black/60 backdrop-blur-md border border-white/10 rounded-full flex items-center gap-2 shadow-lg group-hover:bg-[#C9A227]/20 group-hover:border-[#C9A227]/50 transition-colors duration-300">
                       <Calendar className="w-3.5 h-3.5 text-[#FFD700]" />
                       <span className="text-[11px] font-bold text-white tracking-wider font-bengali">
-                        {item.date}
+                        {getTributeText(item, lang, 'date')}
                       </span>
                     </div>
                   </div>
@@ -114,10 +149,10 @@ export function NationalTributes() {
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20 flex flex-col">
                     <div className="w-8 h-1 bg-gradient-to-r from-[#C9A227] to-[#FFD700] mb-4 rounded-full" />
                     <h4 className="text-2xl font-bold text-white mb-2 font-bengali leading-snug drop-shadow-md">
-                      {item.title}
+                      {getTributeText(item, lang, 'title')}
                     </h4>
                     <p className="text-sm text-slate-300 font-bengali leading-relaxed drop-shadow-md">
-                      {item.msg}
+                      {getTributeText(item, lang, 'msg')}
                     </p>
                   </div>
 

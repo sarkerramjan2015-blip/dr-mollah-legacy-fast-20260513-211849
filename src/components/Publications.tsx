@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Newspaper, ArrowRight, X, BookOpen } from 'lucide-react';
+import { useLanguage, type Language } from '../contexts/LanguageContext';
 import { FadeIn } from './FadeIn';
 import { FilterTabs } from './ui/Premium';
 
@@ -30,12 +31,12 @@ type Publication = {
 
 type PublicationFilter = 'all' | 'leadership' | 'academic' | 'national' | 'media';
 
-const publicationFilters: { id: PublicationFilter; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'leadership', label: 'Leadership' },
-  { id: 'academic', label: 'Academic' },
-  { id: 'national', label: 'National' },
-  { id: 'media', label: 'Media' },
+const publicationFilters: { id: PublicationFilter; label: Record<Language, string> }[] = [
+  { id: 'all', label: { en: 'All', bn: 'সব' } },
+  { id: 'leadership', label: { en: 'Leadership', bn: 'নেতৃত্ব' } },
+  { id: 'academic', label: { en: 'Academic', bn: 'শিক্ষা' } },
+  { id: 'national', label: { en: 'National', bn: 'জাতীয়' } },
+  { id: 'media', label: { en: 'Media', bn: 'মিডিয়া' } },
 ];
 
 const publicationFilterMap: Record<number, Exclude<PublicationFilter, 'all'>> = {
@@ -62,7 +63,34 @@ const publicationsData: Publication[] = [
   { id: 9, title: 'নিয়মিত পড়লেই প্রস্তুতি ভালো হবে', paper: 'প্রথম আলো', category: 'অনুপ্রেরণা ও পরামর্শ', img: img9 },
 ];
 
+const publicationEnglishCopy: Record<number, Pick<Publication, 'title' | 'paper' | 'category'>> = {
+  1: { title: 'Why Are So Many Students Failing HSC?', paper: 'Bangladesh Pratidin', category: 'Education Analysis' },
+  2: { title: 'This Time the Battle Is University Admission', paper: 'Bangladesh Pratidin', category: 'Higher Education' },
+  3: { title: 'Students Are Dropping Out', paper: 'Bangladesh Pratidin', category: 'Social Perspective' },
+  4: { title: 'Take Exams Consciously, Success Will Follow', paper: 'Daily Ittefaq', category: "Principal's Advice" },
+  5: { title: 'Achieve the Expected Result', paper: 'Kaler Kantho', category: 'Study and Preparation' },
+  6: { title: 'The New Curriculum Will Shape Ideal Learners', paper: 'Ajker Patrika', category: 'Curriculum and Learning' },
+  7: { title: 'Let Exams Be Fearless and Joyful', paper: 'National Daily', category: 'Advice Column' },
+  8: { title: 'HSC Exam Special Preparation', paper: 'Shikkha Pata', category: 'Exam Preparation' },
+  9: { title: 'Regular Study Builds Better Preparation', paper: 'Prothom Alo', category: 'Inspiration and Advice' },
+};
+
+const publicationCopy = {
+  eyebrow: { en: 'Publications & Insights', bn: 'প্রকাশনা ও অন্তর্দৃষ্টি' },
+  titleBefore: { en: 'Publications &', bn: 'প্রকাশনা ও' },
+  titleAccent: { en: 'Insights', bn: 'প্রবন্ধ' },
+  read: { en: 'Read Column', bn: 'কলামটি পড়ুন' },
+  ariaFilter: { en: 'Filter publications', bn: 'প্রকাশনা ফিল্টার করুন' },
+  modal: { en: 'Publication image preview', bn: 'প্রকাশনার ছবি প্রিভিউ' },
+  close: { en: 'Close publication preview', bn: 'প্রকাশনা প্রিভিউ বন্ধ করুন' },
+};
+
+function getPublicationText(publication: Publication, lang: Language, field: 'title' | 'paper' | 'category') {
+  return lang === 'en' ? publicationEnglishCopy[publication.id][field] : publication[field];
+}
+
 export function Publications() {
+  const { lang } = useLanguage();
   const [selectedArticle, setSelectedArticle] = useState<Publication | null>(null);
   const [activeFilter, setActiveFilter] = useState<PublicationFilter>('all');
   const filteredPublications = useMemo(() => (
@@ -109,21 +137,21 @@ export function Publications() {
             />
             <div className="relative px-8 py-2 bg-[#04060b] rounded-xl">
               <span className="text-xs font-black tracking-[0.4em] text-white uppercase">
-                Publications & Insights
+                {publicationCopy.eyebrow[lang]}
               </span>
             </div>
           </div>
 
           <h3 className="text-4xl md:text-6xl font-serif font-black text-white leading-tight">
-            প্রকাশনা ও <span className="text-red-500 italic">প্রবন্ধ</span>
+            {publicationCopy.titleBefore[lang]} <span className="text-red-500 italic">{publicationCopy.titleAccent[lang]}</span>
           </h3>
         </div>
 
         <FilterTabs
-          options={publicationFilters}
+          options={publicationFilters.map((filter) => ({ id: filter.id, label: filter.label[lang] }))}
           active={activeFilter}
           onChange={setActiveFilter}
-          ariaLabel="Filter publications"
+          ariaLabel={publicationCopy.ariaFilter[lang]}
         />
 
         {/* ════ GRID SECTION ════ */}
@@ -133,14 +161,14 @@ export function Publications() {
               <button
                 type="button"
                 onClick={() => setSelectedArticle(pub)}
-                aria-label={`Open publication: ${pub.title}`}
+                aria-label={lang === 'en' ? `Open publication: ${getPublicationText(pub, lang, 'title')}` : `${getPublicationText(pub, lang, 'title')} খুলুন`}
                 className="group relative bg-[#0a0c10]/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] overflow-hidden hover:border-red-500/30 transition-all duration-500 cursor-pointer shadow-2xl h-full flex flex-col text-left w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-4 focus-visible:ring-offset-[#04060b]"
               >
                 {/* Image Wrap */}
                 <div className="relative h-64 overflow-hidden">
                   <img 
                     src={pub.img} 
-                    alt={pub.title}
+                    alt={getPublicationText(pub, lang, 'title')}
                     className="w-full h-full object-cover transform-gpu group-hover:scale-110 transition-transform duration-1000 filter grayscale-[20%] group-hover:grayscale-0 object-top" 
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#04060b] via-[#04060b]/20 to-transparent opacity-90" />
@@ -148,7 +176,7 @@ export function Publications() {
                   {/* Newspaper Name Highlight */}
                   <div className="absolute bottom-4 left-6">
                     <span className="px-4 py-1.5 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-[0_0_15px_rgba(239,68,68,0.4)]">
-                      {pub.paper}
+                      {getPublicationText(pub, lang, 'paper')}
                     </span>
                   </div>
                 </div>
@@ -157,16 +185,16 @@ export function Publications() {
                 <div className="p-8 flex-grow flex flex-col justify-between">
                   <div>
                     <div className="flex items-center gap-2 mb-4 text-[#C9A227] font-bold text-xs uppercase tracking-normal">
-                      <BookOpen size={14} /> {pub.category}
+                      <BookOpen size={14} /> {getPublicationText(pub, lang, 'category')}
                     </div>
                     <h4 className="text-2xl font-bold text-white group-hover:text-red-500 transition-colors font-bengali leading-snug">
-                      {pub.title}
+                      {getPublicationText(pub, lang, 'title')}
                     </h4>
                   </div>
 
                   <div className="mt-8 flex items-center justify-between">
                     <span className="text-sm font-black text-white/40 group-hover:text-white transition-colors flex items-center gap-2 font-bengali">
-                      কলামটি পড়ুন <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
+                      {publicationCopy.read[lang]} <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
                     </span>
                     <Newspaper size={20} className="text-white/10 group-hover:text-red-500/50 transition-colors" />
                   </div>
@@ -186,7 +214,7 @@ export function Publications() {
             onClick={() => setSelectedArticle(null)} // Click outside to close
             role="dialog"
             aria-modal="true"
-            aria-label="Publication image preview"
+            aria-label={publicationCopy.modal[lang]}
           >
             <motion.div 
               initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 50 }}
@@ -196,10 +224,10 @@ export function Publications() {
               {/* Modal Header */}
               <div className="flex justify-between items-center px-6 py-4 bg-zinc-200 border-b border-zinc-300 flex-shrink-0">
                 <div className="flex flex-col">
-                  <span className="font-black text-xs md:text-sm uppercase tracking-widest text-zinc-800">{selectedArticle.paper}</span>
-                  <span className="text-[10px] font-bold text-red-600 tracking-wider uppercase">{selectedArticle.category}</span>
+                  <span className="font-black text-xs md:text-sm uppercase tracking-widest text-zinc-800">{getPublicationText(selectedArticle, lang, 'paper')}</span>
+                  <span className="text-[10px] font-bold text-red-600 tracking-wider uppercase">{getPublicationText(selectedArticle, lang, 'category')}</span>
                 </div>
-                <button type="button" aria-label="Close publication preview" onClick={() => setSelectedArticle(null)} className="p-2 bg-zinc-300/50 hover:bg-zinc-300 rounded-full transition-colors text-zinc-800">
+                <button type="button" aria-label={publicationCopy.close[lang]} onClick={() => setSelectedArticle(null)} className="p-2 bg-zinc-300/50 hover:bg-zinc-300 rounded-full transition-colors text-zinc-800">
                   <X size={24} />
                 </button>
               </div>
@@ -209,7 +237,7 @@ export function Publications() {
                 <div className="max-w-3xl mx-auto bg-white p-2 md:p-4 shadow-xl border border-zinc-300">
                    <img 
                       src={selectedArticle.img} 
-                      alt={selectedArticle.title} 
+                      alt={getPublicationText(selectedArticle, lang, 'title')}
                       className="w-full h-auto object-contain"
                    />
                 </div>
