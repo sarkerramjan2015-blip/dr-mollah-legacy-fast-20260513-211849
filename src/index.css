@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Serif+Bengali:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-bengali: "Noto Serif Bengali", serif;
+  --font-hind: "Hind Siliguri", sans-serif;
+  --color-navy-900: #0f172a;
+  --color-navy-800: #1e293b;
+  --color-gold-500: #eab308;
+  --color-gold-400: #facc15;
+}
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar,
+  .interactive-marquee::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scrollbar,
+  .no-scrollbar,
+  .interactive-marquee {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .marquee-fade-mask,
+  .institution-marquee-shell {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  .interactive-marquee {
+    cursor: grab;
+    overscroll-behavior-x: contain;
+    scroll-behavior: auto;
+    touch-action: pan-y;
+    user-select: none;
+  }
+
+  .interactive-marquee.is-dragging {
+    cursor: grabbing;
+  }
+
+  .interactive-marquee img {
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+
+  .soft-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 42px 42px;
+  }
+
+  .corner-brackets::before,
+  .corner-brackets::after {
+    content: "";
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    pointer-events: none;
+    opacity: 0.65;
+    transition: opacity 300ms ease, transform 300ms ease;
+  }
+
+  .corner-brackets::before {
+    left: 12px;
+    top: 12px;
+    border-left: 1px solid rgba(201, 162, 39, 0.5);
+    border-top: 1px solid rgba(201, 162, 39, 0.5);
+  }
+
+  .corner-brackets::after {
+    right: 12px;
+    bottom: 12px;
+    border-right: 1px solid rgba(201, 162, 39, 0.5);
+    border-bottom: 1px solid rgba(201, 162, 39, 0.5);
+  }
+
+  .corner-brackets:hover::before,
+  .corner-brackets:hover::after {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+
+    .interactive-marquee {
+      cursor: auto;
+    }
+  }
+}

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://drmahbuburrahmanmollah.com/sitemap.xml

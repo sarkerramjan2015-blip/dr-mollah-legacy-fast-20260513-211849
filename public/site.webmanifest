@@ -1,0 +1,18 @@
+{
+  "name": "Dr. Mahbubur Rahman Mollah",
+  "short_name": "Dr. M. R. Mollah",
+  "description": "Biography, leadership, institutions, publications, awards, and legacy of Dr. Mahbubur Rahman Mollah.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#04060b",
+  "theme_color": "#04060b",
+  "icons": [
+    {
+      "src": "/icon-512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
