@@ -132,7 +132,7 @@ function DialogueRow({ autoScroll, direction, items, onSelect }: DialogueRowProp
   const eventMarquee = useInteractiveMarquee<HTMLDivElement>({
     autoScroll,
     direction,
-    speed: 30,
+    speed: 38,
     resetKey: `${direction}-${items.map((item) => item.id).join('-')}`,
   });
 

@@ -130,7 +130,7 @@ export function InstitutionsMarquee() {
   const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
   const institutionMarquee = useInteractiveMarquee<HTMLDivElement>({
     autoScroll: true,
-    speed: 26,
+    speed: 42,
   });
 
   useEffect(() => {

@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type DragEvent as ReactDragEvent,
@@ -54,9 +55,21 @@ export function useInteractiveMarquee<T extends HTMLElement>({
     return element.scrollWidth / Math.max(1, segmentCount);
   }, [segmentCount]);
 
+  const canLoop = useCallback((element: T) => {
+    const segmentWidth = getSegmentWidth(element);
+    return segmentWidth > 0 && element.scrollWidth > element.clientWidth;
+  }, [getSegmentWidth]);
+
+  const centerMarquee = useCallback((element: T) => {
+    if (!canLoop(element)) return;
+
+    const segmentWidth = getSegmentWidth(element);
+    element.scrollLeft = segmentWidth;
+  }, [canLoop, getSegmentWidth]);
+
   const normalizeScroll = useCallback((element: T) => {
     const segmentWidth = getSegmentWidth(element);
-    if (segmentWidth <= 0 || element.scrollWidth <= element.clientWidth) {
+    if (!canLoop(element)) {
       return 0;
     }
 
@@ -74,44 +87,38 @@ export function useInteractiveMarquee<T extends HTMLElement>({
     }
 
     return 0;
-  }, [getSegmentWidth, resetKey]);
+  }, [canLoop, getSegmentWidth]);
 
   const pause = useCallback((duration = resumeDelay) => {
     dragState.current.pausedUntil = performance.now() + duration;
   }, [resumeDelay]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = ref.current;
     if (!element) return;
 
-    let hasCentered = false;
     let frameId = 0;
-    const resizeObserver = new ResizeObserver(() => {
-      const segmentWidth = getSegmentWidth(element);
-      if (!hasCentered && segmentWidth > element.clientWidth) {
-        element.scrollLeft = segmentWidth;
-        hasCentered = true;
-      }
-    });
+    let timeoutId = 0;
+    const recenter = () => centerMarquee(element);
 
-    resizeObserver.observe(element);
-    if (element.firstElementChild) {
+    const resizeObserver = typeof ResizeObserver === 'undefined'
+      ? null
+      : new ResizeObserver(recenter);
+
+    resizeObserver?.observe(element);
+    if (element.firstElementChild && resizeObserver) {
       resizeObserver.observe(element.firstElementChild);
     }
 
-    frameId = window.requestAnimationFrame(() => {
-      const segmentWidth = getSegmentWidth(element);
-      if (segmentWidth > element.clientWidth) {
-        element.scrollLeft = segmentWidth;
-        hasCentered = true;
-      }
-    });
+    frameId = window.requestAnimationFrame(recenter);
+    timeoutId = window.setTimeout(recenter, 300);
 
     return () => {
       window.cancelAnimationFrame(frameId);
-      resizeObserver.disconnect();
+      window.clearTimeout(timeoutId);
+      resizeObserver?.disconnect();
     };
-  }, [getSegmentWidth]);
+  }, [centerMarquee, resetKey]);
 
   useEffect(() => {
     const element = ref.current;
@@ -127,6 +134,10 @@ export function useInteractiveMarquee<T extends HTMLElement>({
       const isPaused = dragState.current.active || time < dragState.current.pausedUntil;
 
       if (!isPaused) {
+        if (element.scrollLeft === 0) {
+          centerMarquee(element);
+        }
+
         element.scrollLeft += (direction === 'left' ? 1 : -1) * speed * elapsed;
         normalizeScroll(element);
       }
@@ -136,7 +147,27 @@ export function useInteractiveMarquee<T extends HTMLElement>({
 
     frameId = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(frameId);
-  }, [autoScroll, direction, normalizeScroll, speed]);
+  }, [autoScroll, centerMarquee, direction, normalizeScroll, speed]);
+
+  useEffect(() => {
+    const finishStuckDrag = () => {
+      const state = dragState.current;
+      if (!state.active) return;
+
+      state.active = false;
+      state.pointerId = null;
+      state.pausedUntil = performance.now() + resumeDelay;
+      setIsDragging(false);
+    };
+
+    window.addEventListener('blur', finishStuckDrag);
+    window.addEventListener('pointerup', finishStuckDrag);
+
+    return () => {
+      window.removeEventListener('blur', finishStuckDrag);
+      window.removeEventListener('pointerup', finishStuckDrag);
+    };
+  }, [resumeDelay]);
 
   useEffect(() => {
     return () => {
@@ -233,6 +264,7 @@ export function useInteractiveMarquee<T extends HTMLElement>({
     isDragging,
     marqueeProps: {
       onDragStart: handleDragStart,
+      onLostPointerCapture: finishDrag,
       onPointerCancel: finishDrag,
       onPointerDown: handlePointerDown,
       onPointerMove: handlePointerMove,

@@ -56,7 +56,7 @@ export function AestheticGallery() {
   const galleryMarqueeItems = [...visibleGalleryImages, ...visibleGalleryImages, ...visibleGalleryImages];
   const galleryMarquee = useInteractiveMarquee<HTMLDivElement>({
     autoScroll: true,
-    speed: 30,
+    speed: 40,
     resetKey: activeFilter,
   });
 
